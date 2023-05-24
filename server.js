@@ -1,7 +1,9 @@
-let express = require("express")
+const express = require("express")
 
+const server = express()
 
-let server = express()
+const connect = require('./config/db')
+connect()
 
 const PORT = process.env.PORT || 3000
 

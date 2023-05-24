@@ -28,3 +28,4 @@ build/Release
 .DS_Store
 
 public/
+./config/default.json
