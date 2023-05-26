@@ -90,6 +90,14 @@ router.post('/', [
 // @access   PUBLIC
 router.get('/:employee_number', async (req, res) => {
 
+  try {
+    let employee = await Employee.findOne({ employee_number: req.params.employee_number }).select('-_id -__v')
+
+    res.json(employee)
+  }
+  catch (err) {
+    serverError(err, res)
+  }
 })
 
 function serverError(err, res) {
