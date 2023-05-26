@@ -6,12 +6,7 @@ const EmployeeSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  first_name: {
-    type: String,
-    required: true
-  },
-
-  last_name: {
+  employee_name: {
     type: String,
     required: true
   },
