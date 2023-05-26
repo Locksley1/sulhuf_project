@@ -25,16 +25,13 @@ router.get('/', async (req, res) => {
   }
 })
 
-// @route    PUT api/employees/:employee_number
-// @desc     Create an employee in the database
+// @route    PUT api/employees/:id
+// @desc     Update a specific employee's information in the database  
 // @access   PUBLIC
 router.put('/:id', async (req, res) => {
-
-  const id = req.params.id
-
-  console.log(id)
-
+  await Employee.updateOne({ _id: req.params.id }, { $set: req.body })
   res.send('Employee updated successfully!')
+
 })
 
 // @route    POST api/employees
@@ -59,17 +56,8 @@ router.post('/', [
 
   const { employee_name, department, monthly_salary, job_title } = req.body
 
-  const employee_number = Math.floor(Math.random() * 90000) + 10000;
-
   try {
-
-    let employee = await Employee.findOne({ employee_number })
-
-    if (employee)
-      return res.status(400).json({ errors: [{ msg: 'Employee already exists!' }] })
-
-    employee = new Employee({
-      employee_number,
+    const employee = new Employee({
       employee_name,
       department,
       monthly_salary,
@@ -85,13 +73,13 @@ router.post('/', [
 
 })
 
-// @route    GET api/employees/:employee_number
-// @desc     Retrieves information about a specific employee by their number
+// @route    GET api/employees/:id
+// @desc     Retrieves information about a specific employee by their ID
 // @access   PUBLIC
-router.get('/:employee_number', async (req, res) => {
+router.get('/:id', async (req, res) => {
 
   try {
-    let employee = await Employee.findOne({ employee_number: req.params.employee_number }).select('-_id -__v')
+    let employee = await Employee.findOne({ _id: req.params.id }).select('-_id -__v')
 
     res.json(employee)
   }
@@ -105,14 +93,14 @@ function serverError(err, res) {
   res.status(500).send('Server Error')
 }
 
-// @route    DELETE api/employees/:employee_number
-// @desc     Deletes an employee from the database by their employee_number
+// @route    DELETE api/employees/:id
+// @desc     Deletes an employee from the database by their id
 // @access   PUBLIC
-router.delete('/:employee_number', async (req, res) => {
+router.delete('/:id', async (req, res) => {
 
   try {
-    await Employee.findOneAndDelete({ employee_number: req.params.employee_number })
-    res.status(204)
+    await Employee.deleteOne({ _id: req.params.id })
+    return res.status(204)
   }
   catch (err) {
     serverError(err, res)
