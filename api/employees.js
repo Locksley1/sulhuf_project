@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     const employeePerPage = 3
 
     // Filters by employee name and fetches the correct amount of employees per page. For example, page 2 would skip the first 6 employees and retrieve only the next 3 due to the imposed limit
-    const employees = await Employee.find().select('employee_name -_id').skip(page * employeePerPage).limit(employeePerPage)
+    const employees = await Employee.find().select('name -_id').skip(page * employeePerPage).limit(employeePerPage)
 
     res.json(employees)
   }
@@ -29,9 +29,10 @@ router.get('/', async (req, res) => {
 // @desc     Update a specific employee's information in the database  
 // @access   PUBLIC
 router.put('/:id', async (req, res) => {
+
+  // $set is a mongoose operator that sets values for specific fields provided by the request payload while ignoring the rest 
   await Employee.updateOne({ _id: req.params.id }, { $set: req.body })
   res.send('Employee updated successfully!')
-
 })
 
 // @route    POST api/employees
@@ -39,7 +40,8 @@ router.put('/:id', async (req, res) => {
 // @access   PUBLIC
 router.post('/', [
 
-  check('employee_name', 'Employee name is required!').not().isEmpty(),
+  // Validation check to make sure the necessary fields are supplied before the request goes through
+  check('name', 'Name is required!').not().isEmpty(),
   check('department', 'Department is required!').not().isEmpty(),
   check('monthly_salary', 'Monthly salary is required!').not().isEmpty(),
   check('job_title', 'Job title is required!').not().isEmpty()
@@ -54,16 +56,19 @@ router.post('/', [
     return res.status(400).json({ errors: errors.array() })
   }
 
-  const { employee_name, department, monthly_salary, job_title } = req.body
+  const { name, department, monthly_salary, job_title } = req.body
 
   try {
+
+    // Create a new Employee JS object, mongoose will map it to a MongoDB document
     const employee = new Employee({
-      employee_name,
+      name,
       department,
       monthly_salary,
       job_title
     })
 
+    // MongoDB will assign a unique ObjectID for each Document
     await employee.save()
     res.send('Employee added')
   }
@@ -79,6 +84,7 @@ router.post('/', [
 router.get('/:id', async (req, res) => {
 
   try {
+    // Filter out unnecessary fields such as _id and __v
     let employee = await Employee.findOne({ _id: req.params.id }).select('-_id -__v')
 
     res.json(employee)
@@ -88,10 +94,6 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-function serverError(err, res) {
-  console.error(err.message)
-  res.status(500).send('Server Error')
-}
 
 // @route    DELETE api/employees/:id
 // @desc     Deletes an employee from the database by their id
@@ -99,12 +101,21 @@ function serverError(err, res) {
 router.delete('/:id', async (req, res) => {
 
   try {
+
     await Employee.deleteOne({ _id: req.params.id })
+
+    // Status 204 does not return anything
     return res.status(204)
   }
   catch (err) {
     serverError(err, res)
   }
 })
+
+
+function serverError(err, res) {
+  console.error(err.message)
+  res.status(500).send('Server Error')
+}
 
 module.exports = router
