@@ -105,4 +105,18 @@ function serverError(err, res) {
   res.status(500).send('Server Error')
 }
 
+// @route    DELETE api/employees/:employee_number
+// @desc     Deletes an employee from the database by their employee_number
+// @access   PUBLIC
+router.delete('/:employee_number', async (req, res) => {
+
+  try {
+    await Employee.findOneAndDelete({ employee_number: req.params.employee_number })
+    res.status(204)
+  }
+  catch (err) {
+    serverError(err, res)
+  }
+})
+
 module.exports = router
