@@ -2,6 +2,10 @@ const mongoose = require("mongoose")
 
 
 const EmployeeSchema = new mongoose.Schema({
+  employee_number: {
+    type: Number,
+    required: true
+  },
   first_name: {
     type: String,
     required: true
